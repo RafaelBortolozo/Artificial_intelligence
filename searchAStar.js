@@ -1,12 +1,12 @@
-let currentState = {
+var binary = require('binary-to-decimal')
+
+let rootState = {
     combination: [3,3,0,0],
-    boatSide: 'left'
+    boatSide: 'left',
+    children: []
 }
 
-let finalState = {
-    combination: [0,0,3,3],
-    boatSide: 'right'
-}
+const finalCombination = [0,0,3,3]
 
 let combinationsBoat = [
     [1,0],
@@ -19,9 +19,12 @@ let combinationsBoat = [
 function createNode(combination, boatSide){
     return {
         combination,
-        boatSide
+        boatSide,
+        children: []
     }
 }
+
+function calcDistance(){}
 
 function validatePossibility(possibility){
     //verificar se há mais canibais que missionarios, a condicional é invalida caso não há missionarios naquele lado
@@ -63,7 +66,25 @@ function getValidPossibilities(node){
     return newValidPossibilities
 }
 
+function createSearchATree(rootState){
+    try{
+        
+    }catch{
+        console.log("Algo de errado ocorreu! verifique os dados de entrada")
+    }
+}
+
+
 getValidPossibilities(currentState)
+console.log(binary.decimal(1010))
+
+createSearchATree(rootState);
+
+
+
+
+
+
 //createNode(currentState.combination, currentState.boatSide)
 
 
