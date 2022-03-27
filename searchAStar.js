@@ -1,14 +1,8 @@
-var binary = require('binary-to-decimal')
-
-let rootState = {
-    combination: [3,3,0,0],
-    boatSide: 'left',
-    children: []
-}
-
+const initialCombination = [3,3,0,0]
 const finalCombination = [0,0,3,3]
+let root = null
 
-let combinationsBoat = [
+const combinationsBoat = [
     [1,0],
     [2,0],
     [1,1],
@@ -24,12 +18,37 @@ function createNode(combination, boatSide){
     }
 }
 
-function calcDistance(){}
+function hammingDistance(init, end){
+    function convertArrayInBinaryString(array){ //transforma a combinação em array para uma string binaria, aumentando a precisão da distancia de Hamming
+        let str = ''
+        for(let i of array){
+            for(let j=0 ; j<3 ; j++){
+                if(i > 0){
+                    i -= 1
+                    str += '1'
+                } else {
+                    str += '0'
+                }
+            }
+        }
+        return str
+    }
+
+    init = convertArrayInBinaryString(init).split('') //split na string para comparar caracteres
+    end = convertArrayInBinaryString(end).split('')
+
+    let count = 0
+    for(let i in end){ //contagem de caracteres diferentes
+        if(init[i] != end[i]) count++
+    }
+    
+    return count
+}
 
 function validatePossibility(possibility){
     //verificar se há mais canibais que missionarios, a condicional é invalida caso não há missionarios naquele lado
-    if( (possibility[0] < possibility[1] && possibility[0] != 0) || 
-        (possibility[2] < possibility[3] && possibility[2] != 0)){ 
+    if( (possibility[0] < possibility[1] && possibility[0] > 0) || 
+        (possibility[2] < possibility[3] && possibility[2] > 0)){ 
         return false
     }else{
         return true
@@ -56,31 +75,52 @@ function getValidPossibilities(node){
             ]
         }
         
-        console.log(possibility)
         if(validatePossibility(possibility)){ //verificar possibilidade
             newValidPossibilities.push(possibility)
         } 
     }
 
-    console.log(newValidPossibilities)
     return newValidPossibilities
 }
 
-function createSearchATree(rootState){
-    try{
-        
-    }catch{
-        console.log("Algo de errado ocorreu! verifique os dados de entrada")
+function createSearchATree(rootState) {
+    if(rootState == null){ //inicialmente cria uma raiz da arvore, é o estado inicial do problema
+        rootState = createNode(initialCombination, 'left')
     }
+    
+    if (rootState.combination != finalCombination) { //enquanto não atingir a combinação final...
+        let children = getValidPossibilities(rootState) //coletar novas combinações validas
+        for (let child of children) { //para cada combinação, cria um novo nodo e adiciona-o como filho do nodo raiz
+            if (rootState.boatSide == 'left') {
+                rootState.children.push(createNode(child, 'right'))
+            } else {
+                rootState.children.push(createNode(child, 'left'))
+            }
+        }
+
+        // Calcular distancia distancias
+        // Formula: distancia entre o ponto atual e o próximo + distancia do próximo ponto até o destino
+        let distances = []
+        for (let child of rootState.children) {
+            let distanceCurrentNext = hammingDistance(rootState.combination, child.combination)
+            let distanceNextFinal = hammingDistance(child.combination, finalCombination)
+            let distanceTotal = distanceCurrentNext + distanceNextFinal
+            distances.push(distanceTotal)
+        }
+
+        //achar valor mais proximo do destino (menor)
+        let min = Math.min(...distances)
+        let bestIndex = distances.indexOf(min)
+
+        rootState = createSearchATree(rootState.children[bestIndex])
+    } 
+
+    return rootState
 }
 
-
-getValidPossibilities(currentState)
-console.log(binary.decimal(1010))
-
-createSearchATree(rootState);
-
-
+// console.log(binary.decimal(1010))
+root = createSearchATree(root);
+console.log(root)
 
 
 
