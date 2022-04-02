@@ -10,12 +10,12 @@ const combinationsBoat = [
     [0,2]
 ]
 
-function createNode(combination){
-    return {
-        combination,
-        children: []
-    }
-}
+// function createNode(combination){
+//     return {
+//         combination,
+//         children: []
+//     }
+// }
 
 function decimalDistance(init, end){
     //transforma a combinação em array para uma string binaria
@@ -64,26 +64,26 @@ function validatePossibility(possibility){
     }
 }
 
-function getValidPossibilities(node){
+function getValidPossibilities(combination){
     let newValidPossibilities = [] //array de novas possibilidades validas
     let possibility = []
     for(let combinationBoat of combinationsBoat){ //para cada combinação de barco...
-        if (node.combination[2] == 1) { // se barco estar a esquerda, remove pessoas da esquerda e joga pra direita ou então o inverso
+        if (combination[2] == 1) { // se barco estar a esquerda, remove pessoas da esquerda e joga pra direita ou então o inverso
             possibility = [ 
-                node.combination[0] - combinationBoat[0],
-                node.combination[1] - combinationBoat[1],
+                combination[0] - combinationBoat[0],
+                combination[1] - combinationBoat[1],
                 0,
-                node.combination[3] + combinationBoat[0],
-                node.combination[4] + combinationBoat[1],
+                combination[3] + combinationBoat[0],
+                combination[4] + combinationBoat[1],
                 1
             ]
         } else {
             possibility = [ 
-                node.combination[0] + combinationBoat[0],
-                node.combination[1] + combinationBoat[1],
+                combination[0] + combinationBoat[0],
+                combination[1] + combinationBoat[1],
                 1,
-                node.combination[3] - combinationBoat[0],
-                node.combination[4] - combinationBoat[1],
+                combination[3] - combinationBoat[0],
+                combination[4] - combinationBoat[1],
                 0
             ]
         }
@@ -105,23 +105,18 @@ function isDifferent(array1, array2){
 function createSearchATree(rootState) {
     //inicialmente cria uma raiz da arvore, é o estado inicial do problema
     if(rootState == null){ 
-        rootState = createNode(initialCombination)
+        rootState = initialCombination
     }
 
     //enquanto não atingir a combinação final...
-    if (isDifferent(rootState.combination, finalCombination)) { 
+    if (isDifferent(rootState, finalCombination)) { 
         //coletar novas combinações validas
         let children = getValidPossibilities(rootState) 
 
-        //para cada combinação, cria um novo nodo e adiciona-o como filho do nodo raiz
-        for (let child of children) { 
-            rootState.children.push(createNode(child))
-        }
-
         let distances = []
-        for (let child of rootState.children) {
-            let distanceCurrentNext = decimalDistance(rootState.combination, child.combination)
-            let distanceNextFinal = decimalDistance(child.combination, finalCombination)
+        for (let child of children) {
+            let distanceCurrentNext = decimalDistance(rootState, child)
+            let distanceNextFinal = decimalDistance(child, finalCombination)
             let distanceTotal = distanceCurrentNext + distanceNextFinal
             distances.push(distanceTotal)
         }
@@ -131,14 +126,13 @@ function createSearchATree(rootState) {
         let bestIndex = distances.indexOf(min)
 
         //recursividade usando o melhor nodo filho
-        let newRoot = rootState.children[bestIndex]
-        combinationHistory.push(newRoot.combination)
-        rootState.children.push(createSearchATree(newRoot))
+        let newRoot = children[bestIndex]
+        combinationHistory.push(newRoot)
+        createSearchATree(newRoot)
     } 
 
-    return rootState
+    return
 }
 
-let root = createSearchATree(null);
-//console.log(root)
+createSearchATree(initialCombination);
 console.log(combinationHistory)
