@@ -102,6 +102,20 @@ function isDifferent(array1, array2){
     return false
 }
 
+function printResult(){
+    let str = ''
+    for(let item of combinationHistory){
+        str = item[0] + "m " + item[1] + "c " 
+        if(item[2] == 1){
+            str += "▣..... "
+        } else {
+            str += ".....▣ "
+        }
+        str += item[3] + "m " + item[4] + "c "
+        console.log(str)
+    }
+}
+
 function createSearchATree(rootState) {
     //inicialmente cria uma raiz da arvore, é o estado inicial do problema
     if(rootState == null){ 
@@ -135,4 +149,4 @@ function createSearchATree(rootState) {
 }
 
 createSearchATree(initialCombination);
-console.log(combinationHistory)
+printResult()
