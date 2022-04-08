@@ -10,42 +10,35 @@ const combinationsBoat = [
     [0,2]
 ]
 
-// function createNode(combination){
-//     return {
-//         combination,
-//         children: []
-//     }
-// }
+function convertArrayInBinaryString(array){ 
+    let str = ''
+    for(let i of array){
+        for(let j=0 ; j<3 ; j++){
+            if(i > 0){
+                i -= 1
+                str += '1'
+            } else {
+                str += '0'
+            }
+        }
+    }
+    return str
+}
 
 function decimalDistance(init, end){
     //transforma a combinação em array para uma string binaria
-    function convertArrayInBinaryString(array){ 
-        let str = ''
-        for(let i of array){
-            for(let j=0 ; j<3 ; j++){
-                if(i > 0){
-                    i -= 1
-                    str += '1'
-                } else {
-                    str += '0'
-                }
-            }
-        }
-        return str
-    }
-
     init = convertArrayInBinaryString(init)
     end = convertArrayInBinaryString(end)
 
-    let count = parseInt(init, 2) + parseInt(end, 2)
-
-    return count
+    return parseInt(init, 2) + parseInt(end, 2)
 }
 
 function validatePossibility(possibility){
     //verificar numero de missionarios e canibais (ignorando o lado do barco)
-    for(let value of possibility){
-        if(value < 0 || value > 3) return false
+    for(let i in possibility){
+        if(i != 2 || i != 5){
+            if(possibility[i] < 0 || possibility[i] > 3) return false
+        }
     }
 
     //verificar se a combinação já foi analisada
@@ -116,7 +109,7 @@ function printResult(){
     }
 }
 
-function createSearchATree(rootState) {
+function createSearchAStar(rootState) {
     //inicialmente cria uma raiz da arvore, é o estado inicial do problema
     if(rootState == null){ 
         rootState = initialCombination
@@ -142,11 +135,14 @@ function createSearchATree(rootState) {
         //recursividade usando o melhor nodo filho
         let newRoot = children[bestIndex]
         combinationHistory.push(newRoot)
-        createSearchATree(newRoot)
+        createSearchAStar(newRoot)
     } 
 
     return
 }
 
-createSearchATree(initialCombination);
+createSearchAStar(initialCombination);
 printResult()
+
+console.log("\nInicio => [3,3,1,0,0,0] => " + convertArrayInBinaryString([3,3,1,0,0,0]) + " => " + parseInt(convertArrayInBinaryString([3,3,1,0,0,0]), 2))
+console.log("Final => [0,0,0,3,3,1] => " + convertArrayInBinaryString([0,0,0,3,3,1]) + " => " + parseInt(convertArrayInBinaryString([0,0,0,3,3,1]), 2))
