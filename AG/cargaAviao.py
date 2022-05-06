@@ -11,24 +11,29 @@ import os
 # Central: 16t, 8700m³, 543,75m³/t
 # traseiro: 8t, 5300m³, 662,5m³/t
 
-# Generate Population
+# gerar 12 valores aleatórios, cada compartimento recebe partes das 4 cargas
 def generate_(random, args):
-    size = args.get('num_inputs', 2)
-    return [random.randint(0, 800) for i in range(size)]
+    size = args.get('num_inputs', 12)
+    return [random.randint(0, 23000) for i in range(size)]
  
-# Evaluate Fitness
+# Avalia a solução com a função fitness
 def evaluate_(candidates, args):
     fitness = []
-    for cs in candidates:
-        fit = perform_fitness(cs[0], cs[1])
-        fitness.append(fit)
+    for cs in candidates: # iterar array de soluções
+        fitness.append(perform_fitness(cs)) # montagem do array com as notas das soluções
     return fitness
  
-# Perform Fitness, calculate the fitness of each candidate
-def perform_fitness(L, S):
-    L = np.round(L)
-    S = np.round(S)
- 
+# Calculo do fitness da solução informada
+def perform_fitness(cs):
+    for i, weight in enumerate(cs):
+        cs[i] = np.round(cs[i])
+    
+    #         | Dianteiro | Central | Traseiro |
+    # Carga 1 |   cs[0]   |  cs[4]  |  cs[8]   |
+    # Carga 2 |   cs[1]   |  cs[5]  |  cs[9]   |
+    # Carga 3 |   cs[2]   |  cs[6]  |  cs[10]  |
+    # Carga 4 |   cs[3]   |  cs[7]  |  cs[11]  |
+
     fit = float((5*L + 4.5*S) / 7375)
     h1 = np.maximum(0, float(((6*L+5*S)/100)-60)) / 15
     h2 = np.maximum(0, float(((10*L+20*S)-15000))) / 3750
@@ -44,7 +49,7 @@ def solution_evaluation(L, S):
     S = np.round(S)
  
     print
-    print("..RESUDO DA PRODUÇÃO DE GARRAFAS..")
+    print("..RESUDO DA CARGA DE AVIÃO..")
     print("Lucro total:", float(5*L+4.5*S))
     print("Tempo de utilização semanal", float(10*L+20*S))
     print("Garrafas de leite:", L)
@@ -71,11 +76,11 @@ def main():
  
     final_pop = ea.evolve(generator=generate_, # funcao que gera a população aleatoriamente
                           evaluator=evaluate_, # funcao que avalia as solucoes
-                          pop_size=1000, # tamanho da populacao
+                          pop_size=1000, # tamanho da populacao a cada geração
                           maximize=True, #True: maximização, False: minimização
-                          bounder=ec.Bounder(0, 800), # limites minimos e maximos dos genes
-                          max_generations=10000, # maximo de gerações
-                          num_inputs=2, # numero de genes no cromossomo
+                          bounder=ec.Bounder(0, 16000), # limites minimos e maximos dos genes (maior capacidade do avião é 16t)
+                          max_generations=500, # maximo de gerações
+                          num_inputs=12, # numero de genes no cromossomo (3 compartimentos * 4 cargas)
                           crossover_rate=0.25, # taxa de cruzamento
                           mutation_rate=0.25, # taxa de mutação
                           num_elites=1, # numero de individuos elites a serem selecionadas para a proxima população
