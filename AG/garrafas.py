@@ -7,12 +7,10 @@ from inspyred.ec import terminators
 import numpy as np
 import os 
  
- 
 # Generate Population
 def generate_(random, args):
     size = args.get('num_inputs', 2)
     return [random.randint(0, 800) for i in range(size)]
- 
  
 # Evaluate Fitness
 def evaluate_(candidates, args):
@@ -21,7 +19,6 @@ def evaluate_(candidates, args):
         fit = perform_fitness(cs[0], cs[1])
         fitness.append(fit)
     return fitness
- 
  
 # Perform Fitness, calculate the fitness of each candidate
 def perform_fitness(L, S):
@@ -38,7 +35,6 @@ def perform_fitness(L, S):
     return fit
  
 # Avaliação final do melhor indivíduo(objetivo)
- 
  
 def solution_evaluation(L, S):
     #L = cs[0]
@@ -94,6 +90,5 @@ def main():
  
     perform_fitness(final_pop[0].candidate[0], final_pop[1].candidate[1])
     solution_evaluation(final_pop[0].candidate[0], final_pop[1].candidate[1])
- 
  
 main()
