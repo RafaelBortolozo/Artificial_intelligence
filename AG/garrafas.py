@@ -69,18 +69,18 @@ def main():
     ea.observer = [ec.observers.stats_observer,
                    ec.observers.file_observer]  # Estatistica
  
-    final_pop = ea.evolve(generator=generate_,
-                          evaluator=evaluate_,
-                          pop_size=1000,
-                          maximize=True,
-                          bounder=ec.Bounder(0, 800),
-                          max_generations=10000,
-                          num_inputs=2,
-                          crossover_rate=0.25,
-                          mutation_rate=0.25,
-                          num_elites=1,
-                          num_selected=2,
-                          tournament_size=2,
+    final_pop = ea.evolve(generator=generate_, # funcao que gera a população aleatoriamente
+                          evaluator=evaluate_, # funcao que avalia as solucoes
+                          pop_size=1000, # tamanho da populacao a cada geração
+                          maximize=True, #True: maximização, False: minimização
+                          bounder=ec.Bounder(0, 800), # limites minimos e maximos dos genes
+                          max_generations=10000, # maximo de gerações
+                          num_inputs=2, # numero de genes no cromossomo
+                          crossover_rate=0.25, # taxa de cruzamento
+                          mutation_rate=0.25, # taxa de mutação
+                          num_elites=1, # numero de individuos elites a serem selecionadas para a proxima população
+                          num_selected=2, # numero de individuos
+                          tournament_size=2, # tamanho do torneio
                           statistcs_fize=open("statistics.csv", "w"),
                           individuals_file=open("individuals.csv", "w")
                           )
