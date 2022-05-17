@@ -1,3 +1,4 @@
+from audioop import reverse
 from random import Random
 from time import time
 from math import cos
@@ -20,16 +21,26 @@ def generate_(random, args):
 def evaluate_(candidates, args):
     fitness = []
     for cs in candidates: # iterar array de soluções
-        fit = perform_fitness(cs)
+        fit = perform_fitness(cs[0], cs[1], cs[2], cs[3], cs[4], cs[5], cs[6], cs[7], cs[8], cs[9], cs[10], cs[11])
         fitness.append(fit) # montagem do array com as notas das soluções
     return fitness
  
 # Calculo do fitness da solução informada
-def perform_fitness(cs):
-    totalCargas = 0
-    for i, weight in enumerate(cs):
-        cs[i] = np.round(cs[i])
-        totalCargas += cs[i]
+def perform_fitness(cd1, cc1, ct1, cd2, cc2, ct2, cd3, cc3, ct3, cd4, cc4, ct4):
+    cd1 = np.round(cd1)
+    cc1 = np.round(cc1)
+    ct1 = np.round(ct1)
+    cd2 = np.round(cd2)
+    cc2 = np.round(cc2)
+    ct2 = np.round(ct2)
+    cd3 = np.round(cd3)
+    cc3 = np.round(cc3)
+    ct3 = np.round(ct3)
+    cd4 = np.round(cd4)
+    cc4 = np.round(cc4)
+    ct4 = np.round(ct4)
+
+    totalCargas = cd1+cc1+ct1+cd2+cc2+ct2+cd3+cc3+ct3+cd4+cc4+ct4
     
     #         | Dianteiro | Central | Traseiro |
     # Carga 1 |   cs[0]   |  cs[1]  |  cs[2]   |
@@ -44,17 +55,19 @@ def perform_fitness(cs):
     vpc4 = 0.285 # Valor do peso na carga 4 (R$ 285/t)
     
     # TOTAL DA CARGA x DENTRO DO AVIAO
-    somaCarga1 = (cs[0] + cs[1] + cs[2])
-    somaCarga2 = (cs[3] + cs[4] + cs[5])
-    somaCarga3 = (cs[6] + cs[7] + cs[8])
-    somaCarga4 = (cs[9] + cs[10] + cs[11])
+    somaCarga1 = (cd1 + cc1 + ct1)
+    somaCarga2 = (cd2 + cc2 + ct2)
+    somaCarga3 = (cd3 + cc3 + ct3)
+    somaCarga4 = (cd4 + cc4 + ct4)
 
     # TOTAL DE PESO EM CADA COMPARTIMENTO DO AVIAO
-    somaDianteira = (cs[0] + cs[3] + cs[6] + cs[9])
-    somaCentral = (cs[1] + cs[4] + cs[7] + cs[10])
-    somaTraseira = (cs[2] + cs[5] + cs[8] + cs[11])
+    somaDianteira = (cd1 + cd2 + cd3 + cd4)
+    somaCentral = (cc1 + cc2 + cc3 + cc4)
+    somaTraseira = (ct1 + ct2 + ct3 + ct4)
 
-    fit = float((somaCarga1*vpc1 + somaCarga2*vpc2 + somaCarga3*vpc3 + somaCarga4*vpc4) / 42000)
+    # 18*310 + 15*380 + 23*350 + 12 * 285 = 22750
+    # 22750: Estimativa de valor superior
+    fit = float((somaCarga1*vpc1 + somaCarga2*vpc2 + somaCarga3*vpc3 + somaCarga4*vpc4) / 22750)
 
     # PENALIZAÇÕES
     qtdH = 13
@@ -71,29 +84,40 @@ def perform_fitness(cs):
     h7 = np.maximum(0, float(somaTraseira - 8000)) / (8000/qtdH)
 
     # PENALIZAÇÕES QUANTO AO VOLUME DOS COMPARTIMENTOS DO AVIAO
-    h8 = np.maximum(0, float(cs[0]*0.48 + cs[3]*0.65 + cs[6]*0.58 + cs[9]*0.39)-6800) / (6800/qtdH)
-    h9 = np.maximum(0, float(cs[1]*0.48 + cs[4]*0.65 + cs[7]*0.58 + cs[10]*0.39)-8700) / (8700/qtdH)
-    h10 = np.maximum(0, float(cs[2]*0.48 + cs[5]*0.65 + cs[8]*0.58 + cs[11]*0.39)-5300) / (5300/qtdH)
+    h8 = np.maximum(0, float(cd1*0.48 + cd2*0.65 + cd3*0.58 + cd4*0.39)-6800) / (6800/qtdH)
+    h9 = np.maximum(0, float(cc1*0.48 + cc2*0.65 + cc3*0.58 + cc4*0.39)-8700) / (8700/qtdH)
+    h10 = np.maximum(0, float(ct1*0.48 + ct2*0.65 + ct3*0.58 + ct4*0.39)-5300) / (5300/qtdH)
 
     # PENALIZAÇÕES QUANTO A PROPORÇÃO DE CADA COMPARTIMENTO DO AVIAO
-    h11 = np.maximum(0, float(((somaDianteira / totalCargas) - (10000/34000)))) / ((10000/34000)/qtdH)
-    h12 = np.maximum(0, float(((somaCentral / totalCargas) - (16000/34000)))) / ((16000/34000)/qtdH)
-    h13 = np.maximum(0, float(((somaTraseira / totalCargas) - (8000/34000)))) / ((8000/34000)/qtdH)
+    pesoMax = 34000
+    h11 = np.maximum(0, float(((somaDianteira / pesoMax) - (10000/pesoMax)))) / ((10000/pesoMax)/qtdH)
+    h12 = np.maximum(0, float(((somaCentral / pesoMax) - (16000/pesoMax)))) / ((16000/pesoMax)/qtdH)
+    h13 = np.maximum(0, float(((somaTraseira / pesoMax) - (8000/pesoMax)))) / ((8000/pesoMax)/qtdH)
 
     fit = fit-(h1+h2+h3+h4+h5+h6+h7+h8+h9+h10+h11+h12+h13)
     return fit
  
 # Avaliação final do melhor indivíduo(objetivo)
-def solution_evaluation(cs):
-    for i, value in enumerate(cs):
-        cs[i] = np.round(cs[i])
+def solution_evaluation(cd1, cc1, ct1, cd2, cc2, ct2, cd3, cc3, ct3, cd4, cc4, ct4):
+    cd1 = np.round(cd1)
+    cc1 = np.round(cc1)
+    ct1 = np.round(ct1)
+    cd2 = np.round(cd2)
+    cc2 = np.round(cc2)
+    ct2 = np.round(ct2)
+    cd3 = np.round(cd3)
+    cc3 = np.round(cc3)
+    ct3 = np.round(ct3)
+    cd4 = np.round(cd4)
+    cc4 = np.round(cc4)
+    ct4 = np.round(ct4)
  
     print("..RESUMO DA CARGA DE AVIÃO..")
     print("DIANTEIRA -- CENTRAL -- TRASEIRA")
-    print("PesoCarga1(t): ", float(cs[0] * 0.310), " ", float(cs[1] * 0.310), " ", float(cs[2] * 0.310))
-    print("PesoCarga2(t): ", float(cs[3] * 0.380), " ", float(cs[4] * 0.380), " ", float(cs[5] * 0.380))
-    print("PesoCarga3(t): ", float(cs[6] * 0.350), " ", float(cs[7] * 0.350), " ", float(cs[8] * 0.350))
-    print("PesoCarga4(t): ", float(cs[9] * 0.285), " ", float(cs[10] * 0.285), " ", float(cs[11] * 0.285))
+    print("PesoCarga1(t): ", cd1, " - ", cc1, " - ", ct1)
+    print("PesoCarga2(t): ", cd2, " - ", cc2, " - ", ct2)
+    print("PesoCarga3(t): ", cd3, " - ", cc3, " - ", ct3)
+    print("PesoCarga4(t): ", cd4, " - ", cc4, " - ", ct4)
  
  
 def main():
@@ -119,20 +143,20 @@ def main():
                           pop_size=1000, # tamanho da populacao a cada geração
                           maximize=True, #True: maximização, False: minimização
                           bounder=ec.Bounder(0, 16000), # limites minimos e maximos dos genes (maior capacidade do avião é 16t)
-                          max_generations=500, # maximo de gerações
+                          max_generations=1000, # maximo de gerações
                           num_inputs=12, # numero de genes no cromossomo (3 compartimentos * 4 cargas)
-                          crossover_rate=0.25, # taxa de cruzamento
-                          mutation_rate=0.25, # taxa de mutação
+                          crossover_rate=0.5, # taxa de cruzamento
+                          mutation_rate=0.7, # taxa de mutação
                           num_elites=1, # numero de individuos elites a serem selecionadas para a proxima população
-                          num_selected=2, # numero de individuos
-                          tournament_size=2, # tamanho do torneio
+                          num_selected=12, # numero de individuos
+                          tournament_size=12, # tamanho do torneio
                           statistcs_fize=open("statistics.csv", "w"),
                           individuals_file=open("individuals.csv", "w")
                           )
  
     final_pop.sort(reverse=True) #ordena as soluções, indice zero é o melhor
  
-    perform_fitness(final_pop[0].candidate[0], final_pop[1].candidate[1])
-    solution_evaluation(final_pop[0].candidate[0], final_pop[1].candidate[1])
+    perform_fitness(final_pop[0].candidate[0], final_pop[0].candidate[1], final_pop[0].candidate[2], final_pop[0].candidate[3], final_pop[0].candidate[4], final_pop[0].candidate[5], final_pop[0].candidate[6], final_pop[0].candidate[7], final_pop[0].candidate[8], final_pop[0].candidate[9], final_pop[0].candidate[10], final_pop[0].candidate[11])
+    solution_evaluation(final_pop[0].candidate[0], final_pop[0].candidate[1], final_pop[0].candidate[2], final_pop[0].candidate[3], final_pop[0].candidate[4], final_pop[0].candidate[5], final_pop[0].candidate[6], final_pop[0].candidate[7], final_pop[0].candidate[8], final_pop[0].candidate[9], final_pop[0].candidate[10], final_pop[0].candidate[11])
  
 main()
