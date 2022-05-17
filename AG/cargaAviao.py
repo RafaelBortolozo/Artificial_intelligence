@@ -67,7 +67,7 @@ def perform_fitness(cd1, cc1, ct1, cd2, cc2, ct2, cd3, cc3, ct3, cd4, cc4, ct4):
 
     # 18*310 + 15*380 + 23*350 + 12 * 285 = 22750
     # 22750: Estimativa de valor superior
-    fit = float((somaCarga1*vpc1 + somaCarga2*vpc2 + somaCarga3*vpc3 + somaCarga4*vpc4) / 22750)
+    fit = float((somaCarga1*vpc1 + somaCarga2*vpc2 + somaCarga3*vpc3 + somaCarga4*vpc4) / 13000)
 
     # PENALIZAÇÕES
     qtdH = 13
@@ -143,7 +143,7 @@ def main():
                           pop_size=1000, # tamanho da populacao a cada geração
                           maximize=True, #True: maximização, False: minimização
                           bounder=ec.Bounder(0, 16000), # limites minimos e maximos dos genes (maior capacidade do avião é 16t)
-                          max_generations=1000, # maximo de gerações
+                          max_generations=5000, # maximo de gerações
                           num_inputs=12, # numero de genes no cromossomo (3 compartimentos * 4 cargas)
                           crossover_rate=0.5, # taxa de cruzamento
                           mutation_rate=0.7, # taxa de mutação
