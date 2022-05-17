@@ -20,7 +20,8 @@ def generate_(random, args):
 def evaluate_(candidates, args):
     fitness = []
     for cs in candidates: # iterar array de soluções
-        fitness.append(perform_fitness(cs)) # montagem do array com as notas das soluções
+        fit = perform_fitness(cs)
+        fitness.append(fit) # montagem do array com as notas das soluções
     return fitness
  
 # Calculo do fitness da solução informada
@@ -53,7 +54,7 @@ def perform_fitness(cs):
     somaCentral = (cs[1] + cs[4] + cs[7] + cs[10])
     somaTraseira = (cs[2] + cs[5] + cs[8] + cs[11])
 
-    fit = float((somaCarga1*vpc1 + somaCarga2*vpc2 + somaCarga3*vpc3 + somaCarga4*vpc4) / 12350)
+    fit = float((somaCarga1*vpc1 + somaCarga2*vpc2 + somaCarga3*vpc3 + somaCarga4*vpc4) / 42000)
 
     # PENALIZAÇÕES
     qtdH = 13
@@ -75,24 +76,24 @@ def perform_fitness(cs):
     h10 = np.maximum(0, float(cs[2]*0.48 + cs[5]*0.65 + cs[8]*0.58 + cs[11]*0.39)-5300) / (5300/qtdH)
 
     # PENALIZAÇÕES QUANTO A PROPORÇÃO DE CADA COMPARTIMENTO DO AVIAO
-    h11 = np.maximum(0, float(((somaDianteira / totalCargas) - 0.29411764706))) / (0.29411764706/qtdH)
-    h12 = np.maximum(0, float(((somaCentral / totalCargas) - 0.47058823529))) / (0.47058823529/qtdH)
-    h13 = np.maximum(0, float(((somaTraseira / totalCargas) - 0.23529411765))) / (0.23529411765/qtdH)
+    h11 = np.maximum(0, float(((somaDianteira / totalCargas) - (10000/34000)))) / ((10000/34000)/qtdH)
+    h12 = np.maximum(0, float(((somaCentral / totalCargas) - (16000/34000)))) / ((16000/34000)/qtdH)
+    h13 = np.maximum(0, float(((somaTraseira / totalCargas) - (8000/34000)))) / ((8000/34000)/qtdH)
 
     fit = fit-(h1+h2+h3+h4+h5+h6+h7+h8+h9+h10+h11+h12+h13)
     return fit
  
 # Avaliação final do melhor indivíduo(objetivo)
-def solution_evaluation(L, S):
-    L = np.round(L)
-    S = np.round(S)
+def solution_evaluation(cs):
+    for i, value in enumerate(cs):
+        cs[i] = np.round(cs[i])
  
-    print
-    print("..RESUDO DA CARGA DE AVIÃO..")
-    print("Lucro total:", float(5*L+4.5*S))
-    print("Tempo de utilização semanal", float(10*L+20*S))
-    print("Garrafas de leite:", L)
-    print("Garrafas de suco:", S)
+    print("..RESUMO DA CARGA DE AVIÃO..")
+    print("DIANTEIRA -- CENTRAL -- TRASEIRA")
+    print("PesoCarga1(t): ", float(cs[0] * 0.310), " ", float(cs[1] * 0.310), " ", float(cs[2] * 0.310))
+    print("PesoCarga2(t): ", float(cs[3] * 0.380), " ", float(cs[4] * 0.380), " ", float(cs[5] * 0.380))
+    print("PesoCarga3(t): ", float(cs[6] * 0.350), " ", float(cs[7] * 0.350), " ", float(cs[8] * 0.350))
+    print("PesoCarga4(t): ", float(cs[9] * 0.285), " ", float(cs[10] * 0.285), " ", float(cs[11] * 0.285))
  
  
 def main():
@@ -131,7 +132,7 @@ def main():
  
     final_pop.sort(reverse=True) #ordena as soluções, indice zero é o melhor
  
-    perform_fitness(final_pop[0].candidate[0], final_pop[0].candidate[1])
-    solution_evaluation(final_pop[0].candidate[0], final_pop[0].candidate[1])
+    perform_fitness(final_pop[0].candidate[0], final_pop[1].candidate[1])
+    solution_evaluation(final_pop[0].candidate[0], final_pop[1].candidate[1])
  
 main()
