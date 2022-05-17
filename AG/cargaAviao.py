@@ -65,12 +65,11 @@ def perform_fitness(cd1, cc1, ct1, cd2, cc2, ct2, cd3, cc3, ct3, cd4, cc4, ct4):
     somaCentral = (cc1 + cc2 + cc3 + cc4)
     somaTraseira = (ct1 + ct2 + ct3 + ct4)
 
-    # 18*310 + 15*380 + 23*350 + 12 * 285 = 22750
-    # 22750: Estimativa de valor superior
-    fit = float((somaCarga1*vpc1 + somaCarga2*vpc2 + somaCarga3*vpc3 + somaCarga4*vpc4) / 22750)
+    # 13000: Estimativa empirica de valor superior
+    fit = float((somaCarga1*vpc1 + somaCarga2*vpc2 + somaCarga3*vpc3 + somaCarga4*vpc4) / 13000)
 
     # PENALIZAÇÕES
-    qtdH = 13
+    qtdH = 14
 
     # PENALINAZAÇÃO QUANTO AO PESO DAS CARGAS
     h1 = np.maximum(0, float(somaCarga1 - 18000)) / (18000/qtdH)
@@ -90,11 +89,13 @@ def perform_fitness(cd1, cc1, ct1, cd2, cc2, ct2, cd3, cc3, ct3, cd4, cc4, ct4):
 
     # PENALIZAÇÕES QUANTO A PROPORÇÃO DE CADA COMPARTIMENTO DO AVIAO
     pesoMax = 34000
-    h11 = np.maximum(0, float(((somaDianteira / totalCargas) - (10000/totalCargas))) / ((10000/totalCargas)/qtdH))
-    h12 = np.maximum(0, float(((somaCentral / totalCargas) - (16000/totalCargas))) / ((16000/totalCargas)/qtdH))
-    h13 = np.maximum(0, float(((somaTraseira / totalCargas) - (8000/totalCargas))) / ((8000/totalCargas)/qtdH))
+    h11 = np.maximum(0, float(((somaDianteira / totalCargas) - (10000/pesoMax))) / ((10000/pesoMax)/qtdH))
+    h12 = np.maximum(0, float(((somaCentral / totalCargas) - (16000/pesoMax))) / ((16000/pesoMax)/qtdH))
+    h13 = np.maximum(0, float(((somaTraseira / totalCargas) - (8000/pesoMax))) / ((8000/pesoMax)/qtdH))
 
-    fit = fit-(h1+h2+h3+h4+h5+h6+h7+h8+h9+h10+h11+h12+h13)
+    h14 = np.maximum(0, float(somaDianteira+somaCentral+somaTraseira)-34000) / (34000/qtdH)
+
+    fit = fit-(h1+h2+h3+h4+h5+h6+h7+h8+h9+h10+h11+h12+h13+h14)
     return fit
  
 # Avaliação final do melhor indivíduo(objetivo)
@@ -114,10 +115,10 @@ def solution_evaluation(cd1, cc1, ct1, cd2, cc2, ct2, cd3, cc3, ct3, cd4, cc4, c
  
     print("..RESUMO DA CARGA DE AVIÃO..")
     print("DIANTEIRA -- CENTRAL -- TRASEIRA")
-    print("PesoCarga1(t): ", cd1, " - ", cc1, " - ", ct1)
-    print("PesoCarga2(t): ", cd2, " - ", cc2, " - ", ct2)
-    print("PesoCarga3(t): ", cd3, " - ", cc3, " - ", ct3)
-    print("PesoCarga4(t): ", cd4, " - ", cc4, " - ", ct4)
+    print("PesoCarga1(kg): ", cd1, " - ", cc1, " - ", ct1)
+    print("PesoCarga2(kg): ", cd2, " - ", cc2, " - ", ct2)
+    print("PesoCarga3(kg): ", cd3, " - ", cc3, " - ", ct3)
+    print("PesoCarga4(kg): ", cd4, " - ", cc4, " - ", ct4)
     lucro = ((cd1+cc1+ct1)*0.31 + (cd2+cc2+ct2)*0.38 + (cd3+cc3+ct3)*0.35 + (cd4+cc4+ct4)*0.285)
     print(f"Lucro(R$): {lucro}")
 
@@ -126,6 +127,7 @@ def solution_evaluation(cd1, cc1, ct1, cd2, cc2, ct2, cd3, cc3, ct3, cd4, cc4, c
     somaCentral = (cc1 + cc2 + cc3 + cc4)
     somaTraseira = (ct1 + ct2 + ct3 + ct4)
     total = somaDianteira+somaCentral+somaTraseira
+    print("PesoTotal(kg): ", total)
 
     # VERIFICAÇÃO DOS PESOS
     if somaDianteira > 10000:
@@ -143,13 +145,13 @@ def solution_evaluation(cd1, cc1, ct1, cd2, cc2, ct2, cd3, cc3, ct3, cd4, cc4, c
     if (ct1*0.48 + ct2*0.65 + ct3*0.58 + ct4*0.39) > 5300:
         print(f"espaço traseiro excedido: {ct1*0.48 + ct2*0.65 + ct3*0.58 + ct4*0.39}")
  
-    # VERIFICAÇÃO DE PROPORÇÃO
+    # VERIFICAÇÃO DE PROPORÇÃO, USEI A MESMA LÓGICA DA TABELA
     if (((somaDianteira/total) >= 0.3) or ((somaDianteira/total) <= 0.29)):
-        print(f"proporção dianteira excedida: {np.round((somaDianteira/total),4)}")
+        print(f"proporção dianteira incorreta: {np.round((somaDianteira/total),4)}")
     if (((somaCentral/total) >= 0.48) or ((somaCentral/total) <= 0.47)):
-        print(f"proporção central excedida: {np.round((somaCentral/total),4)}")
+        print(f"proporção central incorreta: {np.round((somaCentral/total),4)}")
     if (((somaTraseira/total) >= 0.24) or ((somaTraseira/total) <= 0.23)):
-        print(f"proporção traseiro excedida: {np.round((somaTraseira/total),4)}")
+        print(f"proporção traseira incorreta: {np.round((somaTraseira/total),4)}")
 
 def main():
     # função principal, cada execução é diferente
@@ -171,15 +173,14 @@ def main():
  
     final_pop = ea.evolve(generator=generate_, # funcao que gera a população aleatoriamente
                           evaluator=evaluate_, # funcao que avalia as solucoes
-                          pop_size=1000, # tamanho da populacao a cada geração
+                          pop_size=100, # tamanho da populacao a cada geração
                           maximize=True, #True: maximização, False: minimização
                           bounder=ec.Bounder(0, 16000), # limites minimos e maximos dos genes (maior capacidade do avião é 16t)
-                          max_generations=500, # maximo de gerações
+                          max_generations=15000, # maximo de gerações
                           num_inputs=12, # numero de genes no cromossomo (3 compartimentos * 4 cargas)
-                          crossover_rate=0.25, # taxa de cruzamento
-
-                          mutation_rate=0.5, # taxa de mutação
-                          num_elites=2, # numero de individuos elites a serem selecionadas para a proxima população
+                          crossover_rate=0.2, # taxa de cruzamento
+                          mutation_rate=0.4, # taxa de mutação
+                          num_elites=1, # numero de individuos elites a serem selecionadas para a proxima população
                           num_selected=12, # numero de individuos
                           tournament_size=2, # tamanho do torneio
                           statistcs_fize=open("statistics.csv", "w"),
