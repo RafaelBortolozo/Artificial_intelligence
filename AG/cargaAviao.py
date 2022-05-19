@@ -1,94 +1,69 @@
-from operator import xor
 from random import Random
 from time import time
 from inspyred import ec
 from inspyred.ec import terminators
-import numpy as np
+import numpy as np 
 
-from sympy import comp 
- 
-# Dianteiro: 10t, 6800m³, 680m³/t
-# Central: 16t, 8700m³, 543,75m³/t
-# traseiro: 8t, 5300m³, 662,5m³/t
+# PROBLEMA AVIÃO CARGUEIRO
 
-def is_valid_proportion(value, total, proportion_min, proportion_max):
-    if (value/total >= proportion_min) and (value/total <= proportion_max):
-        return True
-    return False 
+# CONSTANTES DO AVIÃO:
+PESO_DIANTEIRO = 10000  # (kg)
+PESO_CENTRO = 16000     # (kg)
+PESO_TRASEIRO = 8000    # (kg)
+VOLUME_DIANTEIRO = 6800 # (m³)
+VOLUME_CENTRO = 8700    # (m³)
+VOLUME_TRASEIRO = 5300  # (m³)
 
-# gerar 12 valores aleatórios, cada compartimento recebe partes das 4 cargas
-def generate_(random, args):
-    size = args.get('num_inputs', 12)
-    pesoDianteiro = 10000
-    pesoCentro = 16000
-    pesoTraseiro = 8000
-    tamDianteiro = 6800
-    tamCentro = 8700
-    tamTraseiro = 5300
-    tamDianteiroKG = tamDianteiro/1000
-    tamCentroKG = tamCentro/1000
-    tamTraseiroKG = tamTraseiro/1000
-   
-    cd = np.random.randint(low=10, high=pesoDianteiro, size=4).tolist()
-    cc = np.random.randint(low=10, high=pesoCentro, size=4).tolist()
-    ct = np.random.randint(low=10, high=pesoTraseiro, size=4).tolist()
+# CONSTANTES DAS CARGAS:
+PESO_CARGA_1 = 18000  # (kg)
+PESO_CARGA_2 = 15000  # (kg)
+PESO_CARGA_3 = 23000  # (kg)
+PESO_CARGA_4 = 12000  # (kg)
+VOLUME_CARGA_1 = 0.48 # (m³/kg)
+VOLUME_CARGA_2 = 0.65 # (m³/kg)
+VOLUME_CARGA_3 = 0.58 # (m³/kg)
+VOLUME_CARGA_4 = 0.39 # (m³/kg)
+VALOR_CARGA_1 = 0.31  # (R$/kg)
+VALOR_CARGA_2 = 0.38  # (R$/kg)
+VALOR_CARGA_3 = 0.35  # (R$/kg)
+VALOR_CARGA_4 = 0.285 # (R$/kg)
+
+
+def generate_(random, args):    
+    # 4 VALORES SÃO GERADOS PARA CADA COMPARTIMENTO, LIMITADOS PELA CAPACIDADE DO COMPARTIMENTO
+    cd = np.random.randint(low=0, high=PESO_DIANTEIRO, size=4).tolist()
+    cc = np.random.randint(low=0, high=PESO_CENTRO, size=4).tolist()
+    ct = np.random.randint(low=0, high=PESO_TRASEIRO, size=4).tolist()
 
     # SE A SOMA DOS PESOS DAS CARGAS FOR MENOR QUE A CAPACIDADE DO COMPARTIMENTO, VAI INCREMENTANDO +1kg EM QUALQUER CARGA
-    while sum(cd) < pesoDianteiro:
+    while sum(cd) < PESO_DIANTEIRO:
         i = random.randint(0, 3)
         cd[i] += 1
 
-    while sum(cc) < pesoCentro:
+    while sum(cc) < PESO_CENTRO:
         i = random.randint(0, 3)
         cc[i] += 1
     
-    while sum(ct) < pesoTraseiro:
+    while sum(ct) < PESO_TRASEIRO:
         i = random.randint(0, 3)
         ct[i] += 1
     
     # SE A SOMA DOS PESOS DAS CARGAS FOR MAIOR QUE A CAPACIDADE DO COMPARTIMENTO, VAI DECREMENTANDO -1kg EM QUALQUER CARGA
-    while sum(cd) > pesoDianteiro:
+    while sum(cd) > PESO_DIANTEIRO:
         i = random.randint(0, 3)
         if cd[i] != 0:
             cd[i] -= 1
 
-    while sum(cc) > pesoCentro:
+    while sum(cc) > PESO_CENTRO:
         i = random.randint(0, 3)
         if cc[i] != 0:
             cc[i] -= 1
     
-    while sum(ct) > pesoTraseiro:
+    while sum(ct) > PESO_TRASEIRO:
         i = random.randint(0, 3)
         if ct[i] != 0:
             ct[i] -= 1
 
-    # # Inicialmente, cria valores aleatorios limitados à capacidade de cada compartimento
-    # cd = np.random.randint(low=0, high=pesoDianteiro, size=4).tolist()
-    # cc = np.random.randint(low=0, high=pesoCentro, size=4).tolist()
-    # ct = np.random.randint(low=0, high=pesoTraseiro, size=4).tolist()
-
-    # # Verifica os valores, se extrapolar o Peso ou o Espaço dos compartimentos, então gere novos valores.
-    # # Então, o algoritmo genético não vai punir soluções por extrapolar algum valor (não vai existir).
-    # breakLoop = False
-    # while not breakLoop:
-    #     breakLoop = True # Se não entrar em nenhuma das condicionais, o loop será quebrado
-        
-    #     # Compartimento dianteiro
-    #     if (sum(cd) > pesoDianteiro) or ((cd[0]*0.48 + cd[1]*0.65 + cd[2]*0.58 + cd[3]*0.39) > tamDianteiro):
-    #         cd = np.random.randint(low=0, high=pesoDianteiro, size=4).tolist()
-    #         breakLoop = False
-
-    #     # Compartimento Central
-    #     if (sum(cc) > pesoCentro) or ((cc[0]*0.48 + cc[1]*0.65 + cc[2]*0.58 + cc[3]*0.39) > tamCentro):
-    #         cc = np.random.randint(low=0, high=pesoCentro, size=4).tolist()
-    #         breakLoop = False
-
-    #     # Compartimento Traseiro
-    #     if (sum(ct) > pesoTraseiro) or ((ct[0]*0.48 + ct[1]*0.65 + ct[2]*0.58 + ct[3]*0.39) > tamTraseiro):
-    #         ct = np.random.randint(low=0, high=pesoTraseiro, size=4).tolist()
-    #         breakLoop = False
-
-    # [cd1, cc1, ct1, cd2, cc2, ct2, cd3, cc3, ct3, cd4, cc4, ct4]
     return [cd[0], cc[0], ct[0], cd[1], cc[1], ct[1], cd[2], cc[2], ct[2], cd[3], cc[3], ct[3]]
  
 # Avalia a solução com a função fitness
@@ -115,63 +90,57 @@ def perform_fitness(cd1, cc1, ct1, cd2, cc2, ct2, cd3, cc3, ct3, cd4, cc4, ct4):
     ct4 = np.round(ct4)
 
     totalCargas = cd1+cc1+ct1+cd2+cc2+ct2+cd3+cc3+ct3+cd4+cc4+ct4
-
-    # VALOR DAS CARGAS POR KG
-    vpc1 = 0.31  # R$ 310/t
-    vpc2 = 0.38  # R$ 380/t
-    vpc3 = 0.35  # R$ 350/t
-    vpc4 = 0.285 # R$ 285/t
     
     # TOTAL DA CARGA n DENTRO DO AVIAO
-    somaCarga1 = (cd1 + cc1 + ct1)
-    somaCarga2 = (cd2 + cc2 + ct2)
-    somaCarga3 = (cd3 + cc3 + ct3)
-    somaCarga4 = (cd4 + cc4 + ct4)
+    somaPesoCarga1 = (cd1 + cc1 + ct1)
+    somaPesoCarga2 = (cd2 + cc2 + ct2)
+    somaPesoCarga3 = (cd3 + cc3 + ct3)
+    somaPesoCarga4 = (cd4 + cc4 + ct4)
 
     # TOTAL DE PESO EM CADA COMPARTIMENTO
-    somaPesoDianteira = (cd1 + cd2 + cd3 + cd4)
-    somaPesoCentral = (cc1 + cc2 + cc3 + cc4)
-    somaPesoTraseira = (ct1 + ct2 + ct3 + ct4)
+    somaPesoDianteiro = (cd1 + cd2 + cd3 + cd4)
+    somaPesoCentro = (cc1 + cc2 + cc3 + cc4)
+    somaPesoTraseiro = (ct1 + ct2 + ct3 + ct4)
 
     # TOTAL DE VOLUME EM CADA COMPARTIMENTO 
-    somaVolumeDianteiro = (cd1*0.48 + cd2*0.65 + cd3*0.58 + cd4*0.39)
-    somaVolumeCentral = (cc1*0.48 + cc2*0.65 + cc3*0.58 + cc4*0.39)
-    somaVolumeTraseiro = (ct1*0.48 + ct2*0.65 + ct3*0.58 + ct4*0.39)
+    somaVolumeDianteiro = (cd1*VOLUME_CARGA_1 + cd2*VOLUME_CARGA_2 + cd3*VOLUME_CARGA_3 + cd4*VOLUME_CARGA_4)
+    somaVolumeCentro    = (cc1*VOLUME_CARGA_1 + cc2*VOLUME_CARGA_2 + cc3*VOLUME_CARGA_3 + cc4*VOLUME_CARGA_4)
+    somaVolumeTraseiro  = (ct1*VOLUME_CARGA_1 + ct2*VOLUME_CARGA_2 + ct3*VOLUME_CARGA_3 + ct4*VOLUME_CARGA_4)
 
     # LIMITES DO AVIAO
-    pesoMax = 34000
-    volumeMax = 20800
+    pesoMaxAviao = PESO_DIANTEIRO + PESO_CENTRO + PESO_TRASEIRO
+    volumeMaxAviao = VOLUME_DIANTEIRO + VOLUME_CENTRO + VOLUME_TRASEIRO
 
-    # 13000: Estimativa empirica de valor superior
-    fit = float((somaCarga1*vpc1 + somaCarga2*vpc2 + somaCarga3*vpc3 + somaCarga4*vpc4) / 13000)
+    # 12500: Estimativa empirica de valor superior
+    fit = float((somaPesoCarga1*VALOR_CARGA_1 + somaPesoCarga2*VALOR_CARGA_2 + somaPesoCarga3*VALOR_CARGA_3 + somaPesoCarga4*VALOR_CARGA_4) / 12000)
 
     # PENALIZAÇÕES
     qtdH = 15
     
     # PENALIZAÇÃO QUANTO AO PESO DAS CARGAS
-    h1 = np.maximum(0, float(somaCarga1 - 18000)) / (18000/qtdH)
-    h2 = np.maximum(0, float(somaCarga2 - 15000)) / (15000/qtdH)
-    h3 = np.maximum(0, float(somaCarga3 - 23000)) / (23000/qtdH)
-    h4 = np.maximum(0, float(somaCarga4 - 12000)) / (12000/qtdH)
+    h1 = np.maximum(0, float(somaPesoCarga1 - PESO_CARGA_1)) / (PESO_CARGA_1/qtdH)
+    h2 = np.maximum(0, float(somaPesoCarga2 - PESO_CARGA_2)) / (PESO_CARGA_2/qtdH)
+    h3 = np.maximum(0, float(somaPesoCarga3 - PESO_CARGA_3)) / (PESO_CARGA_3/qtdH)
+    h4 = np.maximum(0, float(somaPesoCarga4 - PESO_CARGA_4)) / (PESO_CARGA_4/qtdH)
 
     # PENALIZAÇÃO QUANTO AO PESO DOS COMPARTIMENTOS DO AVIAO
-    h5 = np.maximum(0, float(somaPesoDianteira - 10000)) / (10000/qtdH)
-    h6 = np.maximum(0, float(somaPesoCentral - 16000)) / (16000/qtdH)
-    h7 = np.maximum(0, float(somaPesoTraseira - 8000)) / (8000/qtdH)
+    h5 = np.maximum(0, float(somaPesoDianteiro - PESO_DIANTEIRO)) / (PESO_DIANTEIRO/qtdH)
+    h6 = np.maximum(0, float(somaPesoCentro - PESO_CENTRO)) / (PESO_CENTRO/qtdH)
+    h7 = np.maximum(0, float(somaPesoTraseiro - PESO_TRASEIRO)) / (PESO_TRASEIRO/qtdH)
 
     # PENALIZAÇÕES QUANTO AO VOLUME DOS COMPARTIMENTOS DO AVIAO
-    h8 = np.maximum(0, float(cd1*0.48 + cd2*0.65 + cd3*0.58 + cd4*0.39)-6800) / (6800/qtdH)
-    h9 = np.maximum(0, float(cc1*0.48 + cc2*0.65 + cc3*0.58 + cc4*0.39)-8700) / (8700/qtdH)
-    h10 = np.maximum(0, float(ct1*0.48 + ct2*0.65 + ct3*0.58 + ct4*0.39)-5300) / (5300/qtdH)
+    h8 = np.maximum(0, float(cd1*VOLUME_CARGA_1 + cd2*VOLUME_CARGA_2 + cd3*VOLUME_CARGA_3 + cd4*VOLUME_CARGA_4)-VOLUME_DIANTEIRO) / (VOLUME_DIANTEIRO/qtdH)
+    h9 = np.maximum(0, float(cc1*VOLUME_CARGA_1 + cc2*VOLUME_CARGA_2 + cc3*VOLUME_CARGA_3 + cc4*VOLUME_CARGA_4)-VOLUME_CENTRO) / (VOLUME_CENTRO/qtdH)
+    h10 = np.maximum(0, float(ct1*VOLUME_CARGA_1 + ct2*VOLUME_CARGA_2 + ct3*VOLUME_CARGA_3 + ct4*VOLUME_CARGA_4)-VOLUME_TRASEIRO) / (VOLUME_TRASEIRO/qtdH)
 
     # PENALIZAÇÕES QUANTO A PROPORÇÃO DE CADA COMPARTIMENTO DO AVIAO
-    h11 = np.maximum(0, float(((somaPesoDianteira / totalCargas) - (10000/pesoMax))) / ((10000/pesoMax)/qtdH))
-    h12 = np.maximum(0, float(((somaPesoCentral / totalCargas) - (16000/pesoMax))) / ((16000/pesoMax)/qtdH))
-    h13 = np.maximum(0, float(((somaPesoTraseira / totalCargas) - (8000/pesoMax))) / ((8000/pesoMax)/qtdH))
+    h11 = np.maximum(0, float(((somaPesoDianteiro / totalCargas) - (PESO_DIANTEIRO/pesoMaxAviao))) / ((PESO_DIANTEIRO/pesoMaxAviao)/qtdH))
+    h12 = np.maximum(0, float(((somaPesoCentro / totalCargas) - (PESO_CENTRO/pesoMaxAviao))) / ((PESO_CENTRO/pesoMaxAviao)/qtdH))
+    h13 = np.maximum(0, float(((somaPesoTraseiro / totalCargas) - (PESO_TRASEIRO/pesoMaxAviao))) / ((PESO_TRASEIRO/pesoMaxAviao)/qtdH))
 
     # PENALIZAÇÕES QUANTO AOS LIMITES DO AVIAO
-    h14 = np.maximum(0, float((somaPesoDianteira+somaPesoCentral+somaPesoTraseira) - pesoMax)) / (pesoMax/qtdH)
-    h15 = np.maximum(0, float((somaVolumeDianteiro+somaVolumeCentral+somaVolumeTraseiro)) - volumeMax) / (volumeMax/qtdH)
+    h14 = np.maximum(0, float((somaPesoDianteiro+somaPesoCentro+somaPesoTraseiro) - pesoMaxAviao)) / (pesoMaxAviao/qtdH)
+    h15 = np.maximum(0, float((somaVolumeDianteiro+somaVolumeCentro+somaVolumeTraseiro)) - volumeMaxAviao) / (volumeMaxAviao/qtdH)
 
     fit = fit-(h1+h2+h3+h4+h5+h6+h7+h8+h9+h10+h11+h12+h13+h14+h15)
     return fit
@@ -193,12 +162,12 @@ def solution_evaluation(cd1, cc1, ct1, cd2, cc2, ct2, cd3, cc3, ct3, cd4, cc4, c
  
     print("..RESUMO DA CARGA DE AVIÃO..")
     print("DIANTEIRA -- CENTRAL -- TRASEIRA")
-    print("PesoCarga1(kg): ", cd1, " - ", cc1, " - ", ct1)
-    print("PesoCarga2(kg): ", cd2, " - ", cc2, " - ", ct2)
-    print("PesoCarga3(kg): ", cd3, " - ", cc3, " - ", ct3)
-    print("PesoCarga4(kg): ", cd4, " - ", cc4, " - ", ct4)
-    lucro = ((cd1+cc1+ct1)*0.31 + (cd2+cc2+ct2)*0.38 + (cd3+cc3+ct3)*0.35 + (cd4+cc4+ct4)*0.285)
-    print(f"Lucro(R$): {lucro}")
+    print("PESO_CARGA1(kg): ", cd1, " - ", cc1, " - ", ct1)
+    print("PESO_CARGA2(kg): ", cd2, " - ", cc2, " - ", ct2)
+    print("PESO_CARGA3(kg): ", cd3, " - ", cc3, " - ", ct3)
+    print("PESO_CARGA4(kg): ", cd4, " - ", cc4, " - ", ct4)
+    lucro = ((cd1+cc1+ct1)*VALOR_CARGA_1 + (cd2+cc2+ct2)*VALOR_CARGA_2 + (cd3+cc3+ct3)*VALOR_CARGA_3 + (cd4+cc4+ct4)*VALOR_CARGA_4)
+    print(f"Lucro(R$): {np.round(lucro, 2)}")
 
     # TOTAL DE PESO EM CADA COMPARTIMENTO DO AVIAO
     somaDianteira = (cd1 + cd2 + cd3 + cd4)
@@ -208,22 +177,22 @@ def solution_evaluation(cd1, cc1, ct1, cd2, cc2, ct2, cd3, cc3, ct3, cd4, cc4, c
     print("PesoTotal(kg): ", total)
 
     # VERIFICAÇÃO DOS PESOS
-    if somaDianteira > 10000:
+    if somaDianteira > PESO_DIANTEIRO:
         print(f"Peso dianteiro excedido: {somaDianteira}")
-    if somaCentral > 16000:
+    if somaCentral > PESO_CENTRO:
         print(f"Peso central excedido: {somaCentral}")
-    if somaTraseira > 8000:
+    if somaTraseira > PESO_TRASEIRO:
         print(f"Peso traseiro excedido: {somaTraseira}")
     
     # VERIFICAÇÃO DOS METROS CUBICOS
-    if (cd1*0.48 + cd2*0.65 + cd3*0.58 + cd4*0.39) > 6800:
-        print(f"espaço dianteiro excedido: {cd1*0.48 + cd2*0.65 + cd3*0.58 + cd4*0.39}")
-    if (cc1*0.48 + cc2*0.65 + cc3*0.58 + cc4*0.39) > 8700:
-        print(f"espaço central excedido: {cc1*0.48 + cc2*0.65 + cc3*0.58 + cc4*0.39}")
-    if (ct1*0.48 + ct2*0.65 + ct3*0.58 + ct4*0.39) > 5300:
-        print(f"espaço traseiro excedido: {ct1*0.48 + ct2*0.65 + ct3*0.58 + ct4*0.39}")
+    if (cd1*VOLUME_CARGA_1 + cd2*VOLUME_CARGA_2 + cd3*VOLUME_CARGA_3 + cd4*VOLUME_CARGA_4) > VOLUME_DIANTEIRO:
+        print(f"espaço dianteiro excedido: {cd1*VOLUME_CARGA_1 + cd2*VOLUME_CARGA_2 + cd3*VOLUME_CARGA_3 + cd4*VOLUME_CARGA_4}")
+    if (cc1*VOLUME_CARGA_1 + cc2*VOLUME_CARGA_2 + cc3*VOLUME_CARGA_3 + cc4*VOLUME_CARGA_4) > VOLUME_CENTRO:
+        print(f"espaço central excedido: {cc1*VOLUME_CARGA_1 + cc2*VOLUME_CARGA_2 + cc3*VOLUME_CARGA_3 + cc4*VOLUME_CARGA_4}")
+    if (ct1*VOLUME_CARGA_1 + ct2*VOLUME_CARGA_2 + ct3*VOLUME_CARGA_3 + ct4*VOLUME_CARGA_4) > VOLUME_TRASEIRO:
+        print(f"espaço traseiro excedido: {ct1*VOLUME_CARGA_1 + ct2*VOLUME_CARGA_2 + ct3*VOLUME_CARGA_3 + ct4*VOLUME_CARGA_4}")
  
-    # VERIFICAÇÃO DE PROPORÇÃO, USEI A MESMA LÓGICA DA TABELA
+    # VERIFICAÇÃO DE PROPORÇÃO, MESMA LÓGICA DA TABELA
     if (((somaDianteira/total) >= 0.3) or ((somaDianteira/total) <= 0.29)):
         print(f"proporção dianteira incorreta: {np.round((somaDianteira/total),4)}")
     if (((somaCentral/total) >= 0.48) or ((somaCentral/total) <= 0.47)):
@@ -251,10 +220,10 @@ def main():
  
     final_pop = ea.evolve(generator=generate_, # funcao que gera a população aleatoriamente
                           evaluator=evaluate_, # funcao que avalia as solucoes
-                          pop_size=7500, # tamanho da populacao a cada geração
+                          pop_size=200, # tamanho da populacao a cada geração
                           maximize=True, #True: maximização, False: minimização
                           bounder=ec.Bounder(0, 16000), # limites minimos e maximos dos genes (maior capacidade do avião é 16t)
-                          max_generations=15000, # maximo de gerações
+                          max_generations=2000, # maximo de gerações
                           num_inputs=12, # numero de genes no cromossomo (3 compartimentos * 4 cargas)
                           crossover_rate=0.2, # taxa de cruzamento
                           mutation_rate=0.2, # taxa de mutação
