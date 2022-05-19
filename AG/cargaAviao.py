@@ -4,8 +4,6 @@ from inspyred import ec
 from inspyred.ec import terminators
 import numpy as np 
 
-# PROBLEMA AVIÃO CARGUEIRO
-
 # CONSTANTES DO AVIÃO:
 PESO_DIANTEIRO = 10000  # (kg)
 PESO_CENTRO = 16000     # (kg)
@@ -27,7 +25,6 @@ VALOR_CARGA_1 = 0.31  # (R$/kg)
 VALOR_CARGA_2 = 0.38  # (R$/kg)
 VALOR_CARGA_3 = 0.35  # (R$/kg)
 VALOR_CARGA_4 = 0.285 # (R$/kg)
-
 
 def generate_(random, args):    
     # 4 VALORES SÃO GERADOS PARA CADA COMPARTIMENTO, LIMITADOS PELA CAPACIDADE DO COMPARTIMENTO
@@ -111,7 +108,7 @@ def perform_fitness(cd1, cc1, ct1, cd2, cc2, ct2, cd3, cc3, ct3, cd4, cc4, ct4):
     pesoMaxAviao = PESO_DIANTEIRO + PESO_CENTRO + PESO_TRASEIRO
     volumeMaxAviao = VOLUME_DIANTEIRO + VOLUME_CENTRO + VOLUME_TRASEIRO
 
-    # 12500: Estimativa empirica de valor superior
+    # 12000: Estimativa empirica de valor superior
     fit = float((somaPesoCarga1*VALOR_CARGA_1 + somaPesoCarga2*VALOR_CARGA_2 + somaPesoCarga3*VALOR_CARGA_3 + somaPesoCarga4*VALOR_CARGA_4) / 12000)
 
     # PENALIZAÇÕES
