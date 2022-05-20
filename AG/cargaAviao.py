@@ -217,19 +217,20 @@ def main():
  
     final_pop = ea.evolve(generator=generate_, # funcao que gera a população aleatoriamente
                           evaluator=evaluate_, # funcao que avalia as solucoes
-                          pop_size=200, # tamanho da populacao a cada geração
+                          pop_size=5000, # tamanho da populacao a cada geração
                           maximize=True, #True: maximização, False: minimização
                           bounder=ec.Bounder(0, 16000), # limites minimos e maximos dos genes (maior capacidade do avião é 16t)
-                          max_generations=2000, # maximo de gerações
+                          max_generations=10000, # maximo de gerações
                           num_inputs=12, # numero de genes no cromossomo (3 compartimentos * 4 cargas)
                           crossover_rate=0.2, # taxa de cruzamento
-                          mutation_rate=0.2, # taxa de mutação
+                          mutation_rate=0.3, # taxa de mutação
                           num_elites=2, # numero de individuos elites a serem selecionadas para a proxima população
                           num_selected=12, # numero de individuos
                           tournament_size=2, # tamanho do torneio
                           statistcs_fize=open("statistics.csv", "w"),
                           individuals_file=open("individuals.csv", "w")
                           )
+
  
     final_pop.sort(reverse=True) #ordena as soluções, indice zero é o melhor
  
