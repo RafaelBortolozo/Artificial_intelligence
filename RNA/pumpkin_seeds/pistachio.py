@@ -27,8 +27,20 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random
 model = Sequential()
 model.add(Dense(100, input_dim=X.shape[1], activation='relu'))
 model.add(Dense(33, activation='relu'))
+model.add(Dropout(0.3)) # Desativa 30% dos neuronios aleatoriamente da camada anterior
 model.add(Dense(11, activation='relu'))
+model.add(Dropout(0.3)) # Desativa 30% dos neuronios aleatoriamente da camada anterior
 model.add(Dense(1, activation='sigmoid'))
+
+# dropout: Técnica que desativa alguns neurônios aleatórios da camada em cada época, 
+# dificultando a rede neural de ajustar os pesos de cada neurônio perfeitamente para 
+# aquele conjunto de treinamento. Se trata de uma técnica de generalização, ou seja, 
+# a capacidade da rede neural de classificar corretamente os dados que ela nunca viu.
+
+# Resultados do dropout: O conjunto de teste teve uma acurácia igual ao conjunto de 
+# treinamento pois o modelo foi generalizado, ou seja, ele não se acostumou a ajustar 
+# os pesos dos neuronios pra trabalhar somente com os dados de treinamento. 
+# O Loss (erro) nos dados de teste foi menor que no conjunto de treinamento pelo mesmo motivo.
 
 # Compilacao do modelo
 # Desempenho (AUC) de cada otimizador para 2000 epocas
@@ -41,9 +53,9 @@ model.compile(loss='binary_crossentropy', optimizer="adam", metrics=['accuracy']
 fit = model.fit(
     x = X_train, # Atributos de treinamento
     y = y_train, # Resultados de treinamento
-    epochs = 20000, # Numero de "geracoes"
-    validation_data=(X_test, y_test),
-    batch_size = 256
+    epochs = 2000, # Numero de "geracoes"
+    validation_data=(X_test, y_test), # validacao do modelo com dados de teste
+    batch_size = 100 # Numero de amostras que vai passar pela rede neural (0-100, 101-200, 201-300...)
 )
 
 # Retorna todas as classificacoes da amostra de teste (array de 0-1)
