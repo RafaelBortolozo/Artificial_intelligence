@@ -17,7 +17,7 @@ dataset = loadtxt('Pistachio_28_Dataset.csv', delimiter=',')
 X = dataset[:,0:28]
 y = dataset[:,28]
 
-# Normalizacao dos dados
+# Normalizacao dos dados, converte para valores entre 0 e 1
 X = Normalizer().fit(X).transform(X)
 
 # Divisao dos dados para treinamento (66,6%) e teste (33,3%) 
@@ -35,7 +35,9 @@ model.add(Dense(1, activation='sigmoid'))
 # dropout: Técnica que desativa alguns neurônios aleatórios da camada em cada época, 
 # dificultando a rede neural de ajustar os pesos de cada neurônio perfeitamente para 
 # aquele conjunto de treinamento. Se trata de uma técnica de generalização, ou seja, 
-# a capacidade da rede neural de classificar corretamente os dados que ela nunca viu.
+# a capacidade da rede neural de classificar corretamente os dados que ela nunca viu. 
+# Na prática ele ajuda a evitar o overfitting e evita que forme um caminho unico de 
+# sucesso na rede, pois alguns neuronios serão desativados.
 
 # Resultados do dropout: O conjunto de teste teve uma acurácia igual ao conjunto de 
 # treinamento pois o modelo foi generalizado, ou seja, ele não se acostumou a ajustar 
@@ -53,7 +55,7 @@ model.compile(loss='binary_crossentropy', optimizer="adam", metrics=['accuracy']
 fit = model.fit(
     x = X_train, # Atributos de treinamento
     y = y_train, # Resultados de treinamento
-    epochs = 2000, # Numero de "geracoes"
+    epochs = 500, # Numero de "geracoes"
     validation_data=(X_test, y_test), # validacao do modelo com dados de teste
     batch_size = 100 # Numero de amostras que vai passar pela rede neural (0-100, 101-200, 201-300...)
 )
@@ -81,7 +83,7 @@ plt.show()
 
 # Matriz de confusao, passando as classificacoes do dataset e do modelo
 cm = confusion_matrix(y_test, pred)
-print("\nMatriz de confusão:")
+print(f"\nMatriz de confusão ({sum(sum(cm))} dados de teste):")
 print("0) ", cm[0][0], " acertos, ", cm[0][1], " erros;")
 print("1) ", cm[1][1], " acertos, ", cm[1][0], " erros;\n")
 
