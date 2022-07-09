@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from keras.layers import *
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Input, Rescaling, Conv2D, MaxPooling2D, Flatten
 from keras.preprocessing import image
 import os
 import cv2
@@ -94,29 +95,52 @@ plt.show()
 # Model should be provided grayscale images
 
 def build_model():
-    input_layer = keras.Input(shape = (256,256,1)) 
-    
-    x = layers.Rescaling(1/255.)(input_layer)
-    
-    x = layers.Conv2D(64,(3,3),activation='relu',name = 'conv2d_2')(x)
-    x = layers.MaxPooling2D(pool_size=(2,2))(x)
-    x = layers.Dropout(0.5)(x)
-    # randomly dropping some training points
+    input_layer = Input(shape = (256,256,1)) 
 
-    x = layers.Conv2D(128,(3,3),activation='relu',name = 'conv2d_3')(x)
-    x = layers.MaxPooling2D(pool_size=(2,2))(x)
-    x = layers.Dropout(0.5)(x)
+    model = Sequential([
+        Rescaling(1/255.)(input_layer),
 
-    x = layers.Conv2D(256,(3,3),activation='relu',name = 'conv2d_4')(x)
-    x = layers.MaxPooling2D(pool_size=(2,2))(x)
-    x = layers.Dropout(0.5)(x)
+        Conv2D(64, (3,3), activation='relu'),
+        MaxPooling2D(pool_size=(2,2)),
+        Dropout(0.3),
+
+        Conv2D(128, (3,3), activation='relu'),
+        MaxPooling2D(pool_size=(2,2)),
+        Dropout(0.3),
+
+        Conv2D(256, (3,3), activation='relu'),
+        MaxPooling2D(pool_size=(2,2)),
+        Dropout(0.3),
+
+        Flatten(),
+        Dense(32, activation='relu',),
+        Dropout(0.3),
+        Dense(1, activation='sigmoid')
+    ])
+
+    return model
     
-    x = layers.Flatten()(x)
-    x = layers.Dense(32,activation='relu',name = 'dense_1')(x)
-    x = layers.Dropout(0.5)(x)
-    output_layer = layers.Dense(1,activation='sigmoid',name = 'dense_2')(x)
+    # x = layers.Rescaling(1/255.)(input_layer)
+    
+    # x = layers.Conv2D(64,(3,3),activation='relu',name = 'conv2d_2')(x)
+    # x = layers.MaxPooling2D(pool_size=(2,2))(x)
+    # x = layers.Dropout(0.5)(x)
+    # # randomly dropping some training points
 
-    return keras.Model(input_layer,output_layer,name = 'model')
+    # x = layers.Conv2D(128,(3,3),activation='relu',name = 'conv2d_3')(x)
+    # x = layers.MaxPooling2D(pool_size=(2,2))(x)
+    # x = layers.Dropout(0.5)(x)
+
+    # x = layers.Conv2D(256,(3,3),activation='relu',name = 'conv2d_4')(x)
+    # x = layers.MaxPooling2D(pool_size=(2,2))(x)
+    # x = layers.Dropout(0.5)(x)
+    
+    # x = layers.Flatten()(x)
+    # x = layers.Dense(32,activation='relu',name = 'dense_1')(x)
+    # x = layers.Dropout(0.5)(x)
+    # output_layer = layers.Dense(1,activation='sigmoid',name = 'dense_2')(x)
+
+    # return keras.Model(input_layer,output_layer,name = 'model')
 
 
 
