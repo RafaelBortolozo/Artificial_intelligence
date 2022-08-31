@@ -7,7 +7,7 @@ Trabalhos desenvolvidos durante a disciplina de Inteligência Artificial da 7º 
 
  - <a href="https://github.com/RafaelBortolozo/Artificial_intelligence/tree/main/Cargo_plane_AG">Problema do Avião Cargueiro usando Algoritmo Genético</a>
 
- - <a href="#">Classificação de sementes de Pistache usando Rede neural Artificial</a>
+ - <a href="https://github.com/RafaelBortolozo/Artificial_intelligence/tree/main/RNA/pistachio">Classificação de sementes de Pistache usando Rede neural Artificial</a>
 
  - <a href="#">Detector de COVID-19 em imagens Raio-X usando Rede Neural Convolucional</a>
 
